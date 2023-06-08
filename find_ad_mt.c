@@ -3,14 +3,14 @@
 #include <time.h>
 
 static const int total = 20000;
+static const int tile_size = 2; // Choose a tile size that fits your data
 
 struct Position {
     int xcoor;
     int ycoor;
-    int* adj; // Dynamic array
+    int* adj; // Dynamic array	
 };
 
-// Function to generate a random number within a given range
 int generateRandomNumber(int min, int max) {
     return (rand() % (max - min + 1)) + min;
 }
@@ -20,7 +20,7 @@ int main() {
     int max = 100;
     int epsilon = 10;
     struct Position array[total];
-    srand(10); // Set the seed for random number generation
+    srand(10);
 
     for (int i = 0; i < total; i++) {
         struct Position randomNums = {
@@ -30,30 +30,31 @@ int main() {
         };
         array[i] = randomNums;
     }
+   
 
     clock_t start = clock();
 
-    for (int i = 0; i < total; i++) {
-        for (int j = 0; j < total; j++) {
-            if (j != i && abs(array[i].xcoor - array[j].xcoor) <= epsilon &&
-                abs(array[i].ycoor - array[j].ycoor) <= epsilon) {
-                array[i].adj[j] = j+1;
+  for (int i = 0; i < total; i += tile_size) {
+    for (int j = 0; j < total; j += tile_size) {
+        for (int i2 = i; i2 < i + tile_size; i2++) {
+            for (int j2 = j; j2 < j + tile_size; j2++) {
+                if (j2 != i2 && abs(array[i2].xcoor - array[j2].xcoor) <= epsilon &&
+                    abs(array[i2].ycoor - array[j2].ycoor) <= epsilon) {
+                    array[i2].adj[j2] = j2;
+                }
             }
         }
     }
-
+}
     clock_t end = clock();
     double executionTime = (double)(end - start) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", executionTime);
-
-    // for (int i = 0; i < total; i++) {
-    //     printf("\nx coor and Y coor for position %d is %d and %d: ", i, array[i].xcoor, array[i].ycoor);
-    //     printf("\nadj elements for position %d: ", i);
-    //     for (int j = 0; j < total; j++) {
-    //         printf("%d ", array[i].adj[j]);
-    //     }
-    //     free(array[i].adj); 
-    // }
-
+//  for (int i = 0; i < total; i++) {
+//          printf("\nx coor and Y coor for position %d is %d and %d: ", i,array[i].xcoor,array[i].ycoor);
+//         printf("\nadj elements for position %d: ", i);
+//         for (int j = 0; j <= total; j++) {
+//             printf("%d ", array[i].adj[j]);
+//         }
+//     }
     return 0;
 }
