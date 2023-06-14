@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-static const int total = 20000;
-static const int tile_size = 2; // Choose a tile size that fits your data
+static const int total = 100000;
 
 struct Position {
     int xcoor;
@@ -33,19 +32,22 @@ int main() {
    
 
     clock_t start = clock();
-
-  for (int i = 0; i < total; i += tile_size) {
-    for (int j = 0; j < total; j += tile_size) {
-        for (int i2 = i; i2 < i + tile_size; i2++) {
-            for (int j2 = j; j2 < j + tile_size; j2++) {
-                if (j2 != i2 && abs(array[i2].xcoor - array[j2].xcoor) <= epsilon &&
-                    abs(array[i2].ycoor - array[j2].ycoor) <= epsilon) {
-                    array[i2].adj[j2] = j2;
-                }
+    int B = 4;
+    // int C = 4;
+   for (int sp = 0;sp < total; sp+=B) {
+       for (int i = sp;i < sp+B; i++) {
+        // for (int sb = 0;sb < total; sb+=C) {
+        for (int j = 0; j < total; j++) {
+            if (j != i && abs(array[i].xcoor - array[j].xcoor) <= epsilon &&
+                abs(array[i].ycoor - array[j].ycoor) <= epsilon) {
+                array[i].adj[j] = j+1;
             }
-        }
+        // }
+       }
+       }
     }
-}
+  
+
     clock_t end = clock();
     double executionTime = (double)(end - start) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", executionTime);

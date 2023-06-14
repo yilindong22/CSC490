@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-static const int total = 20000;
+static const int total = 100000;
 
 struct Position {
     int xcoor;
@@ -52,7 +52,6 @@ int main() {
     //     for (int j = 0; j < total; j++) {
     //         printf("%d ", array[i].adj[j]);
     //     }
-    //     free(array[i].adj); 
     // }
 
     return 0;
