@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
-static const int total = 50000;
+static const int total = 10000;
 
 struct Position {
     int xcoor;
@@ -35,8 +36,8 @@ int main() {
 
     for (int i = 0; i < total; i++) {
         for (int j = 0; j < total; j++) {
-            if (j != i && abs(array[i].xcoor - array[j].xcoor) <= epsilon &&
-                abs(array[i].ycoor - array[j].ycoor) <= epsilon) {
+                        if (j != i && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon) {
+
                 array[i].adj[j] = j+1;
             }
         }
