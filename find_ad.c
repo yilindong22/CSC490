@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-static const int total = 100000;
+static const int total = 50000;
 
 struct Position {
     int xcoor;
@@ -20,8 +20,6 @@ int main() {
     int max = 100;
     int epsilon = 10;
     struct Position array[total];
-    struct Position array2[total];
-
     srand(10); // Set the seed for random number generation
 
     for (int i = 0; i < total; i++) {
@@ -31,15 +29,14 @@ int main() {
             .adj = malloc(total * sizeof(int)) // Dynamically allocate the adj array
         };
         array[i] = randomNums;
-        array2[i] = randomNums;
     }
 
     clock_t start = clock();
 
     for (int i = 0; i < total; i++) {
         for (int j = 0; j < total; j++) {
-            if (j != i && abs(array[i].xcoor - array2[j].xcoor) <= epsilon &&
-                abs(array[i].ycoor - array2[j].ycoor) <= epsilon) {
+            if (j != i && abs(array[i].xcoor - array[j].xcoor) <= epsilon &&
+                abs(array[i].ycoor - array[j].ycoor) <= epsilon) {
                 array[i].adj[j] = j+1;
             }
         }
