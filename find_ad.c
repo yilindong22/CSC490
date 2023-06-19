@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-static const int total = 10000;
+static const int total = 20000;
 
 struct Position {
     int xcoor;
@@ -35,9 +35,8 @@ int main() {
     clock_t start = clock();
 
     for (int i = 0; i < total; i++) {
-        for (int j = 0; j < total; j++) {
-                        if (j != i && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon) {
-
+        for (int j = i; j < total; j++) {
+                if (j != i && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon) {
                 array[i].adj[j] = j+1;
             }
         }
