@@ -35,7 +35,7 @@ int main() {
     clock_t start = clock();
 
     for (int i = 0; i < total; i++) {
-        for (int j = i; j < total; j++) {
+        for (int j = 0; j < total; j++) {
                 if (j != i && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon) {
                 array[i].adj[j] = j+1;
             }

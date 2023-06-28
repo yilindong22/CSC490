@@ -8,7 +8,7 @@ static const int total = 20000;
 struct Position {
     int xcoor;
     int ycoor;
-    int* adj; // Dynamic array	
+    int* adj; // Dynamic array 
 };
 
 int generateRandomNumber(int min, int max) {
@@ -31,18 +31,22 @@ int main() {
         array[i] = randomNums;
     }
     clock_t start = clock();
-    int B = 100;
+    int B = 10;
+    
    for (int t = 0;t < total; t+=B) {
      for (int j = t;j < total; j++) {
        for (int i = t;i < t+B; i++) {
-            if (i != j && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon) {
+            if (i != j){
+                int xDiff = array[i].xcoor - array[j].xcoor;
+                int yDiff = array[i].ycoor - array[j].ycoor;
+             if((xDiff * xDiff + yDiff * yDiff) <= epsilon * epsilon) {
                 array[i].adj[j] = j+1;
+                array[j].adj[i] = i+1;
+             }
             }
-       }
+          }
        }
     }
-  
-
     clock_t end = clock();
     double executionTime = (double)(end - start) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", executionTime);
