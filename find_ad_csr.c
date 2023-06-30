@@ -43,7 +43,7 @@ int main() {
     csr.nnz = 0;
 
     clock_t start = clock();
-    int B = 10;
+    int B = 5;
     int square = epsilon * epsilon;
     for (int t = 0;t < total; t+=B) {
        for (int i = t;i < t+B; i++) {
@@ -54,9 +54,6 @@ int main() {
                     int yDiff = array[i].ycoor - array[j].ycoor;
                     if ((xDiff * xDiff + yDiff * yDiff) <= square) {
                         addElement(&csr, i, j);
-                         csr.row_ptr[i + 1] = csr.nnz;  // Initialize row pointer for the current row
-
-
                     }
                 }
             }
