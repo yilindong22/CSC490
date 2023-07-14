@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-static const int total = 120000;
+static const int total = 20;
 
 struct Position {
     int xcoor;
@@ -36,30 +36,27 @@ int main() {
 
     for (int i = 0; i < total; i++) {
         for (int j = 0; j < total; j++) {
-                if (i != j){
-                int xDiff = array[i].xcoor - array[j].xcoor;
-                int yDiff = array[i].ycoor - array[j].ycoor;
-             if((xDiff * xDiff + yDiff * yDiff) <= epsilon * epsilon) {
+if (j != i && sqrt(pow(array[i].xcoor - array[j].xcoor, 2) + pow(array[i].ycoor - array[j].ycoor, 2))<= epsilon){                
                 array[i].adj[j] = j+1;
              }
             }
             }
-        }
+        
     
 
     clock_t end = clock();
     double executionTime = (double)(end - start) / CLOCKS_PER_SEC;
     printf("Execution time: %.6f seconds\n", executionTime);
 
-    // for (int i = 0; i < total; i++) {
-    //     printf("\nx coor and Y coor for position %d is %d and %d: ", i, array[i].xcoor, array[i].ycoor);
-    //     printf("\nadj elements for position %d: ", i);
-    //     for (int j = 0; j < total; j++) {
-    //         if(array[i].adj[j] != 0){
-    //         printf("%d ", array[i].adj[j]);
-    //         }
-    //     }
-    // }
+    for (int i = 0; i < total; i++) {
+        printf("\nx coor and Y coor for position %d is %d and %d: ", i, array[i].xcoor, array[i].ycoor);
+        printf("\nadj elements for position %d: ", i);
+        for (int j = 0; j < total; j++) {
+            if(array[i].adj[j] != 0){
+            printf("%d ", array[i].adj[j]);
+            }
+        }
+    }
 
     return 0;
 }
