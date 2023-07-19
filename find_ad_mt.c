@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-static const int total = 100000;
+static const int total = 10000;
 
 struct Position {
     int xcoor;
