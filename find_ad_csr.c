@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <pthread.h>
+#include <string.h>
+
+struct timespec start, finish;
 
 static const int total = 100000;
 
@@ -26,6 +30,8 @@ void addElement(struct CSRMatrix* csr, int row, int col) {
 }
 
 int main() {
+     double elapsed; 
+    clock_gettime(CLOCK_MONOTONIC, &start);
     int min = 1;
     int max = 100;
     int epsilon = 10;
@@ -42,7 +48,6 @@ int main() {
     csr.col_indices = (int*)malloc(total * total * sizeof(int));
     csr.nnz = 0;
 
-    clock_t start = clock();
     int square = epsilon * epsilon;
     for (int i = 0;i < total; i++) {
                 csr.row_ptr[i + 1] = csr.nnz;  // Initialize row pointer for the current row
@@ -61,13 +66,12 @@ int main() {
         }
     
     csr.row_ptr[total] = csr.nnz;  // Set the last row pointer
+    clock_gettime(CLOCK_MONOTONIC, &finish);
 
-    clock_t end = clock();
-    double executionTime = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("Execution time: %.6f seconds\n", executionTime);
+
 
     // Print the CSR matrix for debugging purposes
-    printf("CSR matrix:\n");
+    // printf("CSR matrix:\n");
     // for (int i = 0; i < total; i++) {
     //     printf("Row %d: ", i);
     //     for (int j = csr.row_ptr[i]; j < csr.row_ptr[i + 1]; j++) {
@@ -78,6 +82,8 @@ int main() {
 
     free(csr.row_ptr);
     free(csr.col_indices);
-
+elapsed = (finish.tv_sec - start.tv_sec);
+elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+    printf("Execution time: %.6f seconds\n", elapsed);
     return 0;
 }
