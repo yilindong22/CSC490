@@ -36,8 +36,8 @@ void addElement2(struct CSRMatrix* csr, int row, int col) {
 }
 void* compare(){
     struct CSRMatrix csr;
-    csr.row_ptr = (int*)malloc((total + 1) * sizeof(int));
-    csr.col_indices = (int*)malloc(total * total * sizeof(int));
+    csr.row_ptr = (int*)malloc(((total/2) + 1) * sizeof(int));
+    csr.col_indices = (int*)malloc((total/2) + 1 * total * sizeof(int));
     csr.nnz = 0;
     int square = epsilon * epsilon;
     
@@ -57,18 +57,18 @@ void* compare(){
     // free(csr.row_ptr);
     // free(csr.col_indices);
     printf("CSR matrix:\n");
-    // for (int i = 0; i <  total/2; i++) {
-    //     printf("Row %d: ", i);
-    //     for (int j = csr.row_ptr[i]; j < csr.row_ptr[i + 1]; j++) {
-    //         printf("%d ", csr.col_indices[j]);
-    //     }
-    //     printf("\n");
-    // }
+    for (int i = 0; i <  total/2; i++) {
+        printf("Row %d: ", i);
+        for (int j = csr.row_ptr[i]; j < csr.row_ptr[i + 1]; j++) {
+            printf("%d ", csr.col_indices[j]);
+        }
+        printf("\n");
+    }
 }
 void compare2(){
     struct CSRMatrix csr2;
-    csr2.row_ptr = (int*)malloc((total + 1) * sizeof(int));
-    csr2.col_indices = (int*)malloc(total * total * sizeof(int));
+    csr2.row_ptr = (int*)malloc((total/2) + 1 * sizeof(int));
+    csr2.col_indices = (int*)malloc((total/2) + 1 * total * sizeof(int));
     csr2.nnz = 0;
     int square2 = epsilon * epsilon;
 

@@ -19,6 +19,17 @@ struct CSRMatrix {
 void construct_CSR( struct CSRMatrix * csr, int matrix_size )
 {
     csr->row_ptr = (int*)malloc((matrix_size + 1) * sizeof(int));
+    csr->col_indices = (int*)malloc(matrix_size * matrix_size*2 * sizeof(int));
+    csr->nnz = 0;
+
+    if( csr->row_ptr == NULL || csr->col_indices == NULL )
+    {
+        printf("Allocation error!\n");
+    }
+}
+void construct_CSR2( struct CSRMatrix * csr, int matrix_size )
+{
+    csr->row_ptr = (int*)malloc((matrix_size + 1) * sizeof(int));
     csr->col_indices = (int*)malloc(matrix_size * matrix_size * sizeof(int));
     csr->nnz = 0;
 
@@ -27,6 +38,8 @@ void construct_CSR( struct CSRMatrix * csr, int matrix_size )
         printf("Allocation error!\n");
     }
 }
+
+
 
 void destruct_CSR( struct CSRMatrix * csr )
 {
@@ -92,10 +105,14 @@ void* compare( void * output_matrix ){
     
     for (int i = 0;i < total/2; i++) {
         *cur_row++ = num_matches;  // Initialize row pointer for the current row
+        int xcoor_i = array[i].xcoor;
+        int ycoor_i = array[i].ycoor;
         for (int j = 0;j < total; j++) {
             if (i != j) {
-                int xDiff = array[i].xcoor - array[j].xcoor;
-                int yDiff = array[i].ycoor - array[j].ycoor;
+                // int xDiff = array[i].xcoor - array[j].xcoor;
+                // int yDiff = array[i].ycoor - array[j].ycoor;
+                int xDiff = xcoor_i - array[j].xcoor;
+                int yDiff = ycoor_i - array[j].ycoor;
                 if ((xDiff * xDiff + yDiff * yDiff) <= square) {
                     ++num_matches;
                     *cur_neighbour++ = j;
@@ -120,10 +137,14 @@ void* compare2( void * output_matrix ){
 
     for (int i =total/2;i < total; i++) {
         *cur_row++ = num_matches;  // Initialize row pointer for the current row
+        int xcoor_i = array[i].xcoor;
+        int ycoor_i = array[i].ycoor;
         for (int j = 0;j < total; j++) {
             if (i != j) {
-                int xDiff2 = array2[i].xcoor - array2[j].xcoor;
-                int yDiff2 = array2[i].ycoor - array2[j].ycoor;
+                // int xDiff2 = array2[i].xcoor - array2[j].xcoor;
+                // int yDiff2 = array2[i].ycoor - array2[j].ycoor;
+                int xDiff2 = xcoor_i - array[j].xcoor;
+                 int yDiff2 = ycoor_i - array[j].ycoor;
                 if ((xDiff2 * xDiff2 + yDiff2 * yDiff2) <= square2) {
                     ++num_matches;
                     *cur_neighbour++ = j;
@@ -157,9 +178,9 @@ int main() {
         array2[i].ycoor = ycoor;
     }
 
-    construct_CSR( &csr1, total );
-    construct_CSR( &csr2, total );
-    construct_CSR( &csr_merged, total );
+    construct_CSR( &csr1, total/2 );
+    construct_CSR( &csr2, total/2 );
+    construct_CSR2( &csr_merged, total );
 
 
 #ifndef NMULTITHREAD
@@ -184,15 +205,17 @@ memcpy(csr_merged.col_indices, csr1.col_indices, csr1.nnz * sizeof(int));
     }
     // Update row pointers and copy data from csr2 to csr_merged
     for (int i = 0; i <= total/2; i++) {
-        csr_merged.row_ptr[i + total / 4] = csr2.row_ptr[i] + csr1.nnz;
+        csr_merged.row_ptr[i + total / 2] = csr2.row_ptr[i] + csr1.nnz;
     }
 
     memcpy(csr_merged.col_indices + csr1.nnz, csr2.col_indices, csr2.nnz * sizeof(int));
     // Set the total nnz for csr_merged
     csr_merged.nnz = csr1.nnz + csr2.nnz;
-        destruct_CSR(&csr1);
-    destruct_CSR(&csr2);
-            clock_gettime(CLOCK_MONOTONIC, &finish);
+    
+    //destruct_CSR(&csr1);
+    //destruct_CSR(&csr2);
+
+clock_gettime(CLOCK_MONOTONIC, &finish);
 elapsed = (finish.tv_sec - start.tv_sec);
 elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("Execution time: %.6f seconds\n", elapsed);

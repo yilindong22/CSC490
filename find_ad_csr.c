@@ -69,9 +69,10 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &finish);
 
 
-
+    printf("%d",csr.nnz);
     // Print the CSR matrix for debugging purposes
-    // printf("CSR matrix:\n");
+    printf("CSR matrix:\n");
+    
     // for (int i = 0; i < total; i++) {
     //     printf("Row %d: ", i);
     //     for (int j = csr.row_ptr[i]; j < csr.row_ptr[i + 1]; j++) {
