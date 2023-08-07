@@ -7,7 +7,7 @@
 
 struct timespec start, finish;
 
-static const int total = 100000;
+static const int total = 20;
 static const  int epsilon = 10;
 
 struct CSRMatrix {
@@ -65,11 +65,13 @@ void print_CSR( struct CSRMatrix * csr )
 void print_CSR2( struct CSRMatrix * csr )
 {
     for (int i = 0; i < total; i++) {
+                if (csr->row_ptr[i] != csr->row_ptr[i + 1]) {
         printf("Row %d: ", i);
         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
             printf("%d ", csr->col_indices[j]);
         }
         printf("\n");
+    }
     }
 }
 
@@ -109,8 +111,6 @@ void* compare( void * output_matrix ){
         int ycoor_i = array[i].ycoor;
         for (int j = 0;j < total; j++) {
             if (i != j) {
-                // int xDiff = array[i].xcoor - array[j].xcoor;
-                // int yDiff = array[i].ycoor - array[j].ycoor;
                 int xDiff = xcoor_i - array[j].xcoor;
                 int yDiff = ycoor_i - array[j].ycoor;
                 if ((xDiff * xDiff + yDiff * yDiff) <= square) {
@@ -215,6 +215,7 @@ memcpy(csr_merged.col_indices, csr1.col_indices, csr1.nnz * sizeof(int));
     //destruct_CSR(&csr1);
     //destruct_CSR(&csr2);
 
+print_CSR2(&csr_merged);
 clock_gettime(CLOCK_MONOTONIC, &finish);
 elapsed = (finish.tv_sec - start.tv_sec);
 elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;

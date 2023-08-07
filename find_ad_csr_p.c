@@ -4,10 +4,11 @@
 #include <math.h>
 #include <pthread.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct timespec start, finish;
 
-static const int total = 10000;
+static const int total = 100000;
 static const  int epsilon = 10;
 
 struct CSRMatrix {
@@ -18,10 +19,9 @@ struct CSRMatrix {
 
 void construct_CSR( struct CSRMatrix * csr, int matrix_size )
 {
-    csr->row_ptr = (int*)malloc((matrix_size + 1) * sizeof(int));
-    csr->col_indices = (int*)malloc(matrix_size * matrix_size *2 * sizeof(int));
+     csr->row_ptr = (int*)malloc((matrix_size + 1) * sizeof(int));
+    csr->col_indices = (int*)malloc(matrix_size * matrix_size*2 * sizeof(int));
     csr->nnz = 0;
- 
     if( csr->row_ptr == NULL || csr->col_indices == NULL )
     {
         printf("Allocation error!\n");
@@ -50,27 +50,29 @@ void destruct_CSR( struct CSRMatrix * csr )
 
 // random print method to use the output for something
 // doesn't print whole matrix
-void print_CSR( struct CSRMatrix * csr )
-{
-    printf("CSR matrix:\n");
-    for (int i = total/2; i < total; i++) {
-        for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
-            if(csr->col_indices[j] == 7) {
-                printf("%d ", csr->col_indices[j]);
-            }
-        }
-    }
-}
+// void print_CSR( struct CSRMatrix * csr )
+// {
+//     printf("CSR matrix:\n");
+//     for (int i = total/2; i < total; i++) {
+//         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+//             if(csr->col_indices[j] == 7) {
+//                 printf("%d ", csr->col_indices[j]);
+//             }
+//         }
+//     }
+// }
 
 //print the total array
 void print_CSR2( struct CSRMatrix * csr )
 {
     for (int i = 0; i < total; i++) {
+                if (csr->row_ptr[i] != csr->row_ptr[i + 1]) {
         printf("Row %d: ", i);
         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
             printf("%d ", csr->col_indices[j]);
         }
         printf("\n");
+    }
     }
 }
 
@@ -78,8 +80,10 @@ struct Position {
     int xcoor;
     int ycoor;
 };
-struct Position array[100000];
 
+
+
+struct Position array[total];
 
 
 int generateRandomNumber(int min, int max) {
@@ -112,6 +116,7 @@ void* compare( void * output_matrix ){
                 int yDiff = array[i].ycoor - array[j].ycoor;
                 if ((xDiff * xDiff + yDiff * yDiff) <= square) {
                     ++num_matches;
+
                     *cur_neighbour++ = j;
                 }
             }
@@ -120,7 +125,6 @@ void* compare( void * output_matrix ){
     // Set the last row pointer
     *cur_row = num_matches;
     csr->nnz = num_matches;
-   // print_CSR(csr);
     pthread_exit(NULL);
 }
 
@@ -169,8 +173,7 @@ void* compare3( void * output_matrix ){
                 int yDiff = array[i].ycoor - array[j].ycoor;
                 if ((xDiff * xDiff + yDiff * yDiff) <= square) {
                     ++num_matches;
-                    *cur_neighbour++ = j;
-                }
+                    *cur_neighbour++ = j;                }
             }
         }
     }
@@ -205,7 +208,7 @@ void* compare4( void * output_matrix ){
     // Set the last row pointer
     *cur_row = num_matches;
     csr4->nnz = num_matches;
-    // print_CSR(csr);
+    // print_CSR2(csr4);
     pthread_exit(NULL);
 }
 void* compare5( void * output_matrix ){
@@ -236,13 +239,58 @@ void* compare5( void * output_matrix ){
     pthread_exit(NULL);
 }
 
-int main() {
-double elapsed; 
+void* cluster(void * output_matrix, struct CSRMatrix * merged){
+    struct CSRMatrix *csr = (struct CSRMatrix *) output_matrix;
+    int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    int stored[total];
+    int destLen = 0;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
 
-        clock_gettime(CLOCK_MONOTONIC, &start);    struct CSRMatrix csr1, csr2, csr3,csr4,csr_merged,csr5;
+    for (int i = 0; i < total; i++) {
+        *cur_row++ = num_matches;  // Initialize row pointer for the current row
+        if (merged->row_ptr[i] != merged->row_ptr[i + 1] &&(!exists[i])) {
+            exists[i] = true; //
+            stored[destLen++] = i;
+            ++num_matches;
+            *cur_neighbour++ = i;
+            for (int j = merged->row_ptr[i]; j < merged->row_ptr[i + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+                    stored[destLen++] =merged->col_indices[j];
+                }
+            }
+        }
+    }
+    // Set the last row pointer
+    *cur_row = num_matches;
+    csr->nnz = num_matches;
+    // print_CSR2(&csr);
+    // for (int i = 0; i < destLen; i++) {
+    //     printf("Row %d: ", i);
+    //     for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+    //         printf("%d ", csr->col_indices[j]);
+    //     }
+    //     printf("\n");
+    // }
+    }
+
+
+int main() {
+    double elapsed; 
+
+    clock_gettime(CLOCK_MONOTONIC, &start);    
+    struct CSRMatrix csr1, csr2, csr3,csr4,csr_merged,csr5;
     pthread_t new_thread, new_thread2,new_thread3,new_thread4,new_thread5;
-    int min = 10;
-    int max = 1000;
+    int min = 1;
+    int max = 100;
     srand(10);
     int t = total/5;
     int t2 = 2*total/5;
@@ -338,9 +386,11 @@ csr_merged.row_ptr[0] = 0; // Initialize the first row pointer
     csr_merged.nnz += csr5.nnz;
    // destruct_CSR(&csr1);
     //destruct_CSR(&csr2);
-    
 
 
+    struct CSRMatrix clus;
+    construct_CSR( &clus, total );
+    cluster((void *) &clus,&csr_merged);
 
 clock_gettime(CLOCK_MONOTONIC, &finish);
 elapsed = (finish.tv_sec - start.tv_sec);
@@ -349,5 +399,6 @@ elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     // clean up
 
     // print_CSR2(&csr_merged);
+
     return 0;
 }
