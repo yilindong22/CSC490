@@ -273,13 +273,16 @@ void* cluster(void * output_matrix, struct CSRMatrix * merged){
     *cur_row = num_matches;
     csr->nnz = num_matches;
     // print_CSR2(&csr);
-    // for (int i = 0; i < destLen; i++) {
-    //     printf("Row %d: ", i);
-    //     for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
-    //         printf("%d ", csr->col_indices[j]);
-    //     }
-    //     printf("\n");
-    // }
+    for (int i = 0; i < total; i++) {
+                        if (csr->row_ptr[i] != csr->row_ptr[i + 1]) {
+
+        printf("Row %d: ", i);
+        for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+            printf("%d ", csr->col_indices[j]);
+        }
+        printf("\n");
+    }
+    }
     }
 
 
@@ -389,7 +392,7 @@ csr_merged.row_ptr[0] = 0; // Initialize the first row pointer
 
 
     struct CSRMatrix clus;
-    construct_CSR( &clus, total );
+    construct_CSR2( &clus, total );
     cluster((void *) &clus,&csr_merged);
 
 clock_gettime(CLOCK_MONOTONIC, &finish);
