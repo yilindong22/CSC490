@@ -8,13 +8,18 @@
 
 struct timespec start, finish;
 
-static const int total = 100000;
+static const int total = 10000;
 static const  int epsilon = 10;
 
 struct CSRMatrix {
     int* row_ptr;       // CSR row pointers
     int* col_indices;   // CSR column indices
     int nnz;            // Number of non-zero elements
+};
+struct GridArgs {
+    struct CSRMatrix* output_matrix;
+    struct CSRMatrix* merged;
+    int* grid;
 };
 
 void construct_CSR( struct CSRMatrix * csr, int matrix_size )
@@ -179,15 +184,13 @@ void* compare3( void * output_matrix ){
     // print_CSR(csr);
     pthread_exit(NULL);
 }
+
 void* compare4( void * output_matrix ){
     struct CSRMatrix *csr4 = (struct CSRMatrix *) output_matrix;
-
     int num_matches = 0;
     int *cur_row = csr4->row_ptr;
     int *cur_neighbour = csr4->col_indices;
-
     int square = epsilon * epsilon;
-    
     for (int i = (3*total)/5;i < (4*total)/5; i++) {
         *cur_row++ = num_matches;  // Initialize row pointer for the current row
         for (int j = 0;j < total; j++) {
@@ -207,13 +210,12 @@ void* compare4( void * output_matrix ){
     // print_CSR2(csr4);
     pthread_exit(NULL);
 }
+
 void* compare5( void * output_matrix ){
     struct CSRMatrix *csr = (struct CSRMatrix *) output_matrix;
-
     int num_matches = 0;
     int *cur_row = csr->row_ptr;
     int *cur_neighbour = csr->col_indices;
-
     int square = epsilon * epsilon;
     for (int i = (4*total)/5;i < total; i++) {
         *cur_row++ = num_matches;  // Initialize row pointer for the current row
@@ -235,27 +237,199 @@ void* compare5( void * output_matrix ){
     pthread_exit(NULL);
 }
 
-void* grid_p(){
+void* grid_p(void * args){
+    struct GridArgs* gridArgs = (struct GridArgs*) args;
+    struct CSRMatrix* csr = gridArgs->output_matrix;
+    struct CSRMatrix* merged = gridArgs->merged;
+    int* grid = gridArgs->grid;   
+     int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
+    int x = 0;
+    for(int i = 0; i <= (total/2)-1; i ++){
+        if ( (!exists[grid[i]]) &&(grid[i] != grid[i + 1] )) {
+                    *cur_row++ = num_matches;  // Initialize row pointer for the current row
+
+            exists[grid[i]] = true; //
+            ++num_matches;
+            *cur_neighbour++ = grid[i];
+            for (int j = merged->row_ptr[grid[i]]; j < merged->row_ptr[grid[i] + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+
+                }
+            }
+        }
+       
+    }
+    *cur_row = num_matches;
+//  for (int i = 0; i < total/2; i++) {
+//         if ( (grid[i] != grid[i + 1])
+//          ) {
+//         printf("Row %d: ",i);
+//         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+//             printf("%d ", csr->col_indices[j]);
+//         }
+//         printf("\n");
+//      }
+//     }
+
+    
+}
+
+void* grid_p2(void * args){
+    struct GridArgs* gridArgs = (struct GridArgs*) args;
+    struct CSRMatrix* csr = gridArgs->output_matrix;
+    struct CSRMatrix* merged = gridArgs->merged;
+    int* grid = gridArgs->grid;   
+     int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
+    int x = 0;
+    for(int i = 0; i <= (total/2)-1; i ++){
+        if ( (!exists[grid[i]]) &&(grid[i] != grid[i + 1] )) {
+                    *cur_row++ = num_matches;  // Initialize row pointer for the current row
+
+            exists[grid[i]] = true; //
+            ++num_matches;
+            *cur_neighbour++ = grid[i];
+            for (int j = merged->row_ptr[grid[i]]; j < merged->row_ptr[grid[i] + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+
+                }
+            }
+        }
+       
+    }
+    *cur_row = num_matches;
+//  for (int i = 0; i < total/2; i++) {
+//         if ( (grid[i] != grid[i + 1])
+//          ) {
+//         printf("Row %d: ",i);
+//         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+//             printf("%d ", csr->col_indices[j]);
+//         }
+//         printf("\n");
+//      }
+//     }
+
 
 }
 
-void* grid_p2(){
 
+void* grid_p3(void * args){
+    struct GridArgs* gridArgs = (struct GridArgs*) args;
+    struct CSRMatrix* csr = gridArgs->output_matrix;
+    struct CSRMatrix* merged = gridArgs->merged;
+    int* grid = gridArgs->grid;   
+     int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
+    int x = 0;
+    for(int i = 0; i <= (total/2)-1; i ++){
+        if ( (!exists[grid[i]]) &&(grid[i] != grid[i + 1] )) {
+                    *cur_row++ = num_matches;  // Initialize row pointer for the current row
+
+            exists[grid[i]] = true; //
+            ++num_matches;
+            *cur_neighbour++ = grid[i];
+            for (int j = merged->row_ptr[grid[i]]; j < merged->row_ptr[grid[i] + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+
+                }
+            }
+        }
+       
+    }
+    *cur_row = num_matches;
+//  for (int i = 0; i < total/2; i++) {
+//         if ( (grid[i] != grid[i + 1])
+//          ) {
+//         printf("Row %d: ",i);
+//         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+//             printf("%d ", csr->col_indices[j]);
+//         }
+//         printf("\n");
+//      }
+//     }
 }
 
-void* grid_p3(){
 
+void* grid_p4(void * args){
+    struct GridArgs* gridArgs = (struct GridArgs*) args;
+    struct CSRMatrix* csr = gridArgs->output_matrix;
+    struct CSRMatrix* merged = gridArgs->merged;
+    int* grid = gridArgs->grid;   
+     int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
+    int x = 0;
+    for(int i = 0; i <= (total/2)-1; i ++){
+        if ( (!exists[grid[i]]) &&(grid[i] != grid[i + 1] )) {
+                    *cur_row++ = num_matches;  // Initialize row pointer for the current row
+
+            exists[grid[i]] = true; //
+            ++num_matches;
+            *cur_neighbour++ = grid[i];
+            for (int j = merged->row_ptr[grid[i]]; j < merged->row_ptr[grid[i] + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+
+                }
+            }
+        }
+       
+    }
+    *cur_row = num_matches;
+//  for (int i = 0; i < total/2; i++) {
+//         if ( (grid[i] != grid[i + 1])
+//          ) {
+//         printf("Row %d: ",i);
+//         for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+//             printf("%d ", csr->col_indices[j]);
+//         }
+//         printf("\n");
+//      }
+//     }
 }
 
-void* grid_p4(){
 
-}
 int main() {
     double elapsed; 
-
     clock_gettime(CLOCK_MONOTONIC, &start);    
-    struct CSRMatrix csr1, csr2, csr3,csr4,csr_merged,csr5;
+    struct CSRMatrix csr1, csr2, csr3,csr4,csr_merged,csr5,csr6,csr7,csr8,csr9;
     pthread_t new_thread, new_thread2,new_thread3,new_thread4,new_thread5;
+    pthread_t thread_g, thread_g2,thread_g3,thread_g4;
     int min = 1;
     int max = 100;
     srand(10);
@@ -270,8 +444,7 @@ int main() {
     int t3 = total*3/5;
     int t4 = 4*total/5;
     int mid = (int)ceil((max-min)/2);
-    int g1 = 0; int g2 = 0; int g3; int g4 = 0;
-
+    int g1 = 0; int g2 = 0; int g3 = 0; int g4 = 0;
     for (int i = 0; i < total; i++) {
         int xcoor = generateRandomNumber(min, max);
         int ycoor = generateRandomNumber(min, max);
@@ -294,12 +467,17 @@ int main() {
             g4 ++;            
         }
     }
-
+    
     construct_CSR( &csr1, total/5 );
     construct_CSR( &csr2, total/5 );
     construct_CSR( &csr3, total/5 );
     construct_CSR( &csr4, total/5 );
     construct_CSR( &csr5, total/5 );
+
+    construct_CSR( &csr6, total/2 );
+    construct_CSR( &csr7, total/2 );
+    construct_CSR( &csr8, total/2 );
+    construct_CSR( &csr9, total/2 );
 
     construct_CSR2( &csr_merged, total );
 
@@ -377,6 +555,22 @@ csr_merged.row_ptr[0] = 0; // Initialize the first row pointer
     csr_merged.nnz += csr5.nnz;
    // destruct_CSR(&csr1);
     //destruct_CSR(&csr2);
+
+struct GridArgs args1 = {&csr6, &csr_merged, grid};
+struct GridArgs args2 = {&csr7, &csr_merged, grid2};
+struct GridArgs args3 = {&csr8, &csr_merged, grid3};
+struct GridArgs args4 = {&csr9, &csr_merged, grid4};
+
+
+pthread_create(&thread_g, NULL, grid_p, &args1);
+pthread_create(&thread_g2, NULL, grid_p2, &args2);
+pthread_create(&thread_g3, NULL, grid_p3, &args3);
+pthread_create(&thread_g4, NULL, grid_p4, &args4);
+
+pthread_join(thread_g, NULL);
+pthread_join(thread_g2, NULL);
+pthread_join(thread_g3, NULL);
+pthread_join(thread_g4, NULL);
 
 
 

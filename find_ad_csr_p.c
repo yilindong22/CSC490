@@ -8,7 +8,7 @@
 
 struct timespec start, finish;
 
-static const int total = 100000;
+static const int total = 10000;
 static const  int epsilon = 10;
 
 struct CSRMatrix {
@@ -254,7 +254,7 @@ void* cluster(void * output_matrix, struct CSRMatrix * merged){
 
     for (int i = 0; i < total; i++) {
         *cur_row++ = num_matches;  // Initialize row pointer for the current row
-        if (merged->row_ptr[i] != merged->row_ptr[i + 1] &&(!exists[i])) {
+        if ((!exists[i])) {
             exists[i] = true; //
             stored[destLen++] = i;
             ++num_matches;
@@ -273,16 +273,15 @@ void* cluster(void * output_matrix, struct CSRMatrix * merged){
     *cur_row = num_matches;
     csr->nnz = num_matches;
     // print_CSR2(&csr);
-    for (int i = 0; i < total; i++) {
-                        if (csr->row_ptr[i] != csr->row_ptr[i + 1]) {
+    // for (int i = 0; i < total; i++) {
 
-        printf("Row %d: ", i);
-        for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
-            printf("%d ", csr->col_indices[j]);
-        }
-        printf("\n");
-    }
-    }
+    //     printf("Row %d: ", i);
+    //     for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+    //         printf("%d ", csr->col_indices[j]);
+    //     }
+    //     printf("\n");
+    
+    // }
     }
 
 
@@ -387,6 +386,7 @@ csr_merged.row_ptr[0] = 0; // Initialize the first row pointer
 
     memcpy(csr_merged.col_indices + csr_merged.nnz, csr5.col_indices, csr5.nnz * sizeof(int));
     csr_merged.nnz += csr5.nnz;
+
    // destruct_CSR(&csr1);
     //destruct_CSR(&csr2);
 
