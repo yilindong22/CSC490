@@ -239,6 +239,51 @@ void* compare5( void * output_matrix ){
     pthread_exit(NULL);
 }
 
+void* cluster(void * output_matrix, struct CSRMatrix * merged){
+    struct CSRMatrix *csr = (struct CSRMatrix *) output_matrix;
+    int num_matches = 0;
+    int *cur_row = csr->row_ptr;
+    int *cur_neighbour = csr->col_indices;
+    int stored[total];
+    int destLen = 0;
+    bool* exists = (bool*)calloc(total + 1, sizeof(bool));
+    if (exists == NULL) {
+        printf("Memory allocation failed\n");
+        return(0);
+    }
+
+    for (int i = 0; i < total; i++) {
+        *cur_row++ = num_matches;  // Initialize row pointer for the current row
+        if ((!exists[i])) {
+            exists[i] = true; //
+            stored[destLen++] = i;
+            ++num_matches;
+            *cur_neighbour++ = i;
+            for (int j = merged->row_ptr[i]; j < merged->row_ptr[i + 1]; j++) {
+                if (!exists[merged->col_indices[j]]) {
+                    ++num_matches;
+                    *cur_neighbour++ = merged->col_indices[j];
+                    exists[merged->col_indices[j]] = true; //
+                    stored[destLen++] =merged->col_indices[j];
+                }
+            }
+        }
+    }
+    // Set the last row pointer
+    *cur_row = num_matches;
+    csr->nnz = num_matches;
+    // print_CSR2(&csr);
+    // for (int i = 0; i < total; i++) {
+
+    //     printf("Row %d: ", i);
+    //     for (int j = csr->row_ptr[i]; j < csr->row_ptr[i + 1]; j++) {
+    //         printf("%d ", csr->col_indices[j]);
+    //     }
+    //     printf("\n");
+    
+    // }
+    }
+
 
 int main() {
     double elapsed; 
@@ -246,8 +291,8 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &start);    
     struct CSRMatrix csr1, csr2, csr3,csr4,csr_merged,csr5;
     pthread_t new_thread, new_thread2,new_thread3,new_thread4,new_thread5;
-    int min = 10;
-    int max = 1000;
+    int min = 1;
+    int max = 100;
     srand(10);
     int t = total/5;
     int t2 = 2*total/5;
@@ -346,6 +391,9 @@ csr_merged.row_ptr[0] = 0; // Initialize the first row pointer
     //destruct_CSR(&csr2);
 
 
+    struct CSRMatrix clus;
+    construct_CSR2( &clus, total );
+    cluster((void *) &clus,&csr_merged);
 
 clock_gettime(CLOCK_MONOTONIC, &finish);
 elapsed = (finish.tv_sec - start.tv_sec);
